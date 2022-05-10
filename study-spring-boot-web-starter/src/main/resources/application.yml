@@ -1,1 +1,6 @@
-
+# 邮箱配置
+spring:
+  mail:
+    host: smtp.aliyun.com
+    username: bugfix@aliyun.com
+    password: 12241233NIDF

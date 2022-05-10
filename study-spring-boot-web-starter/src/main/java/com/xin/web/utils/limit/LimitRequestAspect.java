@@ -5,6 +5,7 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
@@ -22,11 +23,9 @@ public class LimitRequestAspect {
     /**
      * redis工具类
      */
+    @Autowired(required = false)
     private RedisService redisService;
 
-    public LimitRequestAspect(RedisService redisService) {
-        this.redisService = redisService;
-    }
 
     /**
      * 切入方法
