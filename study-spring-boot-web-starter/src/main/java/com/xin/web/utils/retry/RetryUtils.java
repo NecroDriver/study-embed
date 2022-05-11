@@ -2,6 +2,7 @@ package com.xin.web.utils.retry;
 
 import com.xin.web.base.Base;
 
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 
 /**
@@ -13,49 +14,52 @@ import java.util.function.BiFunction;
  */
 public class RetryUtils extends Base {
 
-    /**
-     * 重试方法
-     *
-     * @param maxRetryCount 重试次数
-     * @param supplier      服务调用
-     * @param consumer      结果判别
-     * @param <T>           泛型
-     * @return 结果
-     */
-    public static <T> T retry(int maxRetryCount, ExceptionSupplier<T> supplier, BiFunction<T, Exception, Boolean> consumer) throws Exception {
 
-        /*--------------------------------日志记录------------------------------------*/
-        logger.debug("重试方法，重试次数：{}", maxRetryCount);
+    public static <T> T retry(Integer maxRetryCount, Long sleepTime, Integer times, ExceptionSupplier<T> supplier, BiFunction<T, Exception, Boolean> consumer) throws Exception {
 
         /*--------------------------------参数校验------------------------------------*/
+        maxRetryCount = null == maxRetryCount ? 5 : maxRetryCount;
+        sleepTime = null == sleepTime ? 10 : sleepTime;
+        times = null == times ? 1 : times;
+        // 存放结果
         T result = null;
+        // 异常
         Exception exception = null;
+        // 实际重试次数
         int retryCount = 0;
-        boolean flagCallMethod = true;
+        // 是否调用方法
+        boolean callMethodFlag = true;
 
         /*--------------------------------业务处理------------------------------------*/
-        while (flagCallMethod && retryCount <= maxRetryCount) {
+        while (callMethodFlag && (retryCount <= maxRetryCount || maxRetryCount <= 0)) {
             // 满足条件，尝试重试
             try {
+                if (retryCount > 0) {
+                    if (retryCount > 1) {
+                        // 设置间隔时间
+                        sleepTime = sleepTime * times;
+                    }
+                    // 睡眠等待
+                    TimeUnit.SECONDS.sleep(sleepTime);
+                }
                 // 获取服务调用的结果
                 result = supplier.get();
+                logger.info("重试，次数：{}, 结果：{}", retryCount, result);
             } catch (Exception e) {
                 // 如果重试次数不小于最大重试次数，就抛出异常，我们把对异常的处理交给业务方
-                if (retryCount >= maxRetryCount) {
+                if (maxRetryCount > 0 && retryCount >= maxRetryCount) {
                     throw e;
                 }
                 // 赋值
                 exception = e;
+                logger.error("服务调用异常:{}", e.getMessage());
             }
             // 对结果进行判断
-            flagCallMethod = consumer.apply(result, exception);
-            if (flagCallMethod) {
+            callMethodFlag = consumer.apply(result, exception);
+            if (callMethodFlag) {
                 retryCount++;
             }
         }
-
-        /*--------------------------------日志记录------------------------------------*/
-        logger.debug("重试方法，结果：{}", result);
 
         /*--------------------------------方法返回------------------------------------*/
         return result;

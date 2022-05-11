@@ -11,8 +11,8 @@ public interface ExceptionSupplier<T> {
     /**
      * 携带异常调用方法
      *
-     * @return
-     * @throws Exception
+     * @return T
+     * @throws Exception 异常
      */
     T get() throws Exception;
 }
