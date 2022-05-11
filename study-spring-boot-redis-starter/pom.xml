@@ -8,13 +8,17 @@
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
+
     <artifactId>study-spring-boot-redis-starter</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>study-spring-boot-redis-starter</name>
     <description>study-spring-boot-redis-starter</description>
+    <packaging>jar</packaging>
+
     <properties>
         <java.version>11</java.version>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
